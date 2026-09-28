@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface TaskTemplateRepository extends JpaRepository<TaskTemplate, Long> {
     List<TaskTemplate> findByUserAndActiveTrue(AppUser user);
+    List<TaskTemplate> findByUserOrderByIdDesc(AppUser user);
     List<TaskTemplate> findByUserAndTaskTypeAndActiveTrueAndScheduledDate(AppUser user, TaskType taskType, LocalDate date);
     Optional<TaskTemplate> findByIdAndUser(Long id, AppUser user);
 }

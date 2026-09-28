@@ -59,8 +59,15 @@ public class TaskService {
 
     @Transactional
     public List<TaskInstance> historyForDate(AppUser user, LocalDate date) {
-        generateInstancesForDate(user, date);
+        LocalDate today = LocalDate.now(ZoneId.of(user.getTimezone()));
+        if (!date.isAfter(today)) {
+            generateInstancesForDate(user, date);
+        }
         return taskInstanceRepository.findByUserAndTaskDateOrderById(user, date);
+    }
+
+    public List<TaskTemplate> templates(AppUser user) {
+        return taskTemplateRepository.findByUserOrderByIdDesc(user);
     }
 
     @Transactional
@@ -86,7 +93,7 @@ public class TaskService {
             XpTransaction xp = new XpTransaction();
             xp.setUser(lockedUser);
             xp.setAmount(instance.getXpReward());
-            xp.setReason("Completed task: " + instance.getTemplate().getTitle());
+            xp.setReason("Completed task: " + displayTitle(instance));
             xp.setTaskInstance(instance);
             xpTransactionRepository.save(xp);
 
@@ -94,7 +101,7 @@ public class TaskService {
             coin.setUser(lockedUser);
             coin.setAmount(instance.getCoinReward());
             coin.setTransactionType(CoinTransactionType.EARN);
-            coin.setReason("Completed task: " + instance.getTemplate().getTitle());
+            coin.setReason("Completed task: " + displayTitle(instance));
             coin.setTaskInstance(instance);
             coinTransactionRepository.save(coin);
 
@@ -134,6 +141,9 @@ public class TaskService {
                     TaskInstance instance = new TaskInstance();
                     instance.setUser(user);
                     instance.setTemplate(template);
+                    instance.setTitleSnapshot(template.getTitle());
+                    instance.setCategorySnapshot(template.getCategory());
+                    instance.setPrioritySnapshot(template.getPriority());
                     instance.setTaskDate(date);
                     instance.setXpReward(template.getXpReward());
                     instance.setCoinReward(template.getCoinReward());
@@ -141,6 +151,61 @@ public class TaskService {
                     return taskInstanceRepository.save(instance);
                 });
         }
+    }
+
+    @Transactional
+    public TaskTemplate updateTemplate(AppUser user, Long templateId, UpdateTaskTemplateRequest request) {
+        TaskTemplate template = taskTemplateRepository.findByIdAndUser(templateId, user)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Task template not found"));
+
+        if (request.title() != null && !request.title().isBlank()) {
+            template.setTitle(request.title());
+        }
+        if (request.description() != null) {
+            template.setDescription(request.description());
+        }
+        if (request.category() != null && !request.category().isBlank()) {
+            template.setCategory(request.category());
+        }
+        if (request.priority() != null) {
+            template.setPriority(request.priority());
+        }
+        if (request.taskType() != null) {
+            template.setTaskType(request.taskType());
+        }
+        if (request.recurrenceRule() != null) {
+            template.setRecurrenceRule(request.recurrenceRule());
+        }
+        if (request.scheduledDate() != null) {
+            template.setScheduledDate(request.scheduledDate());
+        }
+        if (request.xpReward() != null) {
+            template.setXpReward(request.xpReward());
+        }
+        if (request.coinReward() != null) {
+            template.setCoinReward(request.coinReward());
+        }
+        if (request.active() != null) {
+            template.setActive(request.active());
+        }
+
+        if (template.getTaskType() == TaskType.ONE_TIME) {
+            if (template.getScheduledDate() == null) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "One-time tasks require scheduledDate");
+            }
+            template.setRecurrenceRule(RecurrenceRule.NONE);
+        } else if (template.getTaskType() == TaskType.RECURRING && template.getRecurrenceRule() == RecurrenceRule.NONE) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Recurring tasks require recurrenceRule");
+        }
+        return taskTemplateRepository.save(template);
+    }
+
+    @Transactional
+    public TaskTemplate deactivateTemplate(AppUser user, Long templateId) {
+        TaskTemplate template = taskTemplateRepository.findByIdAndUser(templateId, user)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Task template not found"));
+        template.setActive(false);
+        return taskTemplateRepository.save(template);
     }
 
     private boolean appliesToDate(TaskTemplate template, LocalDate date) {
@@ -162,6 +227,12 @@ public class TaskService {
         if (request.taskType() == TaskType.ONE_TIME && request.scheduledDate() == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "One-time tasks require scheduledDate");
         }
+
+        private String displayTitle(TaskInstance instance) {
+            return Optional.ofNullable(instance.getTitleSnapshot())
+                .filter(s -> !s.isBlank())
+                .orElseGet(() -> instance.getTemplate().getTitle());
+        }
         if (request.taskType() == TaskType.RECURRING && request.recurrenceRule() == RecurrenceRule.NONE) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Recurring tasks require recurrenceRule");
         }
@@ -177,5 +248,18 @@ public class TaskService {
         LocalDate scheduledDate,
         int xpReward,
         int coinReward
+    ) {}
+
+    public record UpdateTaskTemplateRequest(
+        String title,
+        String description,
+        String category,
+        Priority priority,
+        TaskType taskType,
+        RecurrenceRule recurrenceRule,
+        LocalDate scheduledDate,
+        Integer xpReward,
+        Integer coinReward,
+        Boolean active
     ) {}
 }

@@ -26,6 +26,9 @@ public class AppUser extends BaseEntity {
     @Column(nullable = false)
     private long coinBalance = 0;
 
+    @Column(nullable = false)
+    private long recoveryTokenBalance = 0;
+
     @Version
     private long version;
 
@@ -40,4 +43,6 @@ public class AppUser extends BaseEntity {
     public void addXp(long delta) { this.xpTotal += delta; }
     public long getCoinBalance() { return coinBalance; }
     public void addCoins(long delta) { this.coinBalance += delta; }
+    public long getRecoveryTokenBalance() { return recoveryTokenBalance; }
+    public void addRecoveryTokens(long delta) { this.recoveryTokenBalance += delta; }
 }

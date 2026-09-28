@@ -34,6 +34,11 @@ public class TaskController {
         return taskService.todayTasks(userContextService.requireUser()).stream().map(TaskInstanceResponse::from).toList();
     }
 
+    @GetMapping("/templates")
+    public List<TemplateResponse> templates() {
+        return taskService.templates(userContextService.requireUser()).stream().map(TemplateResponse::from).toList();
+    }
+
     @GetMapping("/history/{date}")
     public List<TaskInstanceResponse> byDate(@PathVariable LocalDate date) {
         return taskService.historyForDate(userContextService.requireUser(), date).stream().map(TaskInstanceResponse::from).toList();
@@ -47,6 +52,16 @@ public class TaskController {
     @PatchMapping("/{id}/status")
     public TaskInstanceResponse updateStatus(@PathVariable Long id, @RequestBody @Valid UpdateStatusBody body) {
         return TaskInstanceResponse.from(taskService.updateStatus(userContextService.requireUser(), id, body.status()));
+    }
+
+    @PatchMapping("/templates/{id}")
+    public TemplateResponse updateTemplate(@PathVariable Long id, @RequestBody @Valid UpdateTemplateBody body) {
+        return TemplateResponse.from(taskService.updateTemplate(userContextService.requireUser(), id, body.toRequest()));
+    }
+
+    @DeleteMapping("/templates/{id}")
+    public TemplateResponse deactivateTemplate(@PathVariable Long id) {
+        return TemplateResponse.from(taskService.deactivateTemplate(userContextService.requireUser(), id));
     }
 
     public record CreateTaskBody(
@@ -67,15 +82,37 @@ public class TaskController {
 
     public record UpdateStatusBody(@NotNull TaskStatus status) {}
 
-    public record TemplateResponse(Long id, String title, TaskType taskType, RecurrenceRule recurrenceRule, LocalDate scheduledDate, int xpReward, int coinReward) {
-        static TemplateResponse from(TaskTemplate t) {
-            return new TemplateResponse(t.getId(), t.getTitle(), t.getTaskType(), t.getRecurrenceRule(), t.getScheduledDate(), t.getXpReward(), t.getCoinReward());
+    public record UpdateTemplateBody(
+        String title,
+        String description,
+        String category,
+        Priority priority,
+        TaskType taskType,
+        RecurrenceRule recurrenceRule,
+        LocalDate scheduledDate,
+        @Min(0) Integer xpReward,
+        @Min(0) Integer coinReward,
+        Boolean active
+    ) {
+        TaskService.UpdateTaskTemplateRequest toRequest() {
+            return new TaskService.UpdateTaskTemplateRequest(
+                title, description, category, priority, taskType, recurrenceRule, scheduledDate, xpReward, coinReward, active
+            );
         }
     }
 
-    public record TaskInstanceResponse(Long id, Long templateId, String title, LocalDate taskDate, TaskStatus status, int xpReward, int coinReward) {
+    public record TemplateResponse(Long id, String title, String description, String category, Priority priority, TaskType taskType, RecurrenceRule recurrenceRule, LocalDate scheduledDate, int xpReward, int coinReward, boolean active) {
+        static TemplateResponse from(TaskTemplate t) {
+            return new TemplateResponse(t.getId(), t.getTitle(), t.getDescription(), t.getCategory(), t.getPriority(), t.getTaskType(), t.getRecurrenceRule(), t.getScheduledDate(), t.getXpReward(), t.getCoinReward(), t.isActive());
+        }
+    }
+
+    public record TaskInstanceResponse(Long id, Long templateId, String title, String category, Priority priority, LocalDate taskDate, TaskStatus status, int xpReward, int coinReward) {
         static TaskInstanceResponse from(TaskInstance i) {
-            return new TaskInstanceResponse(i.getId(), i.getTemplate().getId(), i.getTemplate().getTitle(), i.getTaskDate(), i.getStatus(), i.getXpReward(), i.getCoinReward());
+            String title = i.getTitleSnapshot() != null ? i.getTitleSnapshot() : i.getTemplate().getTitle();
+            String category = i.getCategorySnapshot() != null ? i.getCategorySnapshot() : i.getTemplate().getCategory();
+            Priority priority = i.getPrioritySnapshot() != null ? i.getPrioritySnapshot() : i.getTemplate().getPriority();
+            return new TaskInstanceResponse(i.getId(), i.getTemplate().getId(), title, category, priority, i.getTaskDate(), i.getStatus(), i.getXpReward(), i.getCoinReward());
         }
     }
 }

@@ -20,6 +20,13 @@ public class TaskInstance extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private TaskTemplate template;
 
+    private String titleSnapshot;
+
+    private String categorySnapshot;
+
+    @Enumerated(EnumType.STRING)
+    private Priority prioritySnapshot;
+
     @Column(nullable = false)
     private LocalDate taskDate;
 
@@ -40,6 +47,12 @@ public class TaskInstance extends BaseEntity {
     public void setUser(AppUser user) { this.user = user; }
     public TaskTemplate getTemplate() { return template; }
     public void setTemplate(TaskTemplate template) { this.template = template; }
+    public String getTitleSnapshot() { return titleSnapshot; }
+    public void setTitleSnapshot(String titleSnapshot) { this.titleSnapshot = titleSnapshot; }
+    public String getCategorySnapshot() { return categorySnapshot; }
+    public void setCategorySnapshot(String categorySnapshot) { this.categorySnapshot = categorySnapshot; }
+    public Priority getPrioritySnapshot() { return prioritySnapshot; }
+    public void setPrioritySnapshot(Priority prioritySnapshot) { this.prioritySnapshot = prioritySnapshot; }
     public LocalDate getTaskDate() { return taskDate; }
     public void setTaskDate(LocalDate taskDate) { this.taskDate = taskDate; }
     public TaskStatus getStatus() { return status; }

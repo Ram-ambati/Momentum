@@ -2,6 +2,7 @@ package com.momentum.service;
 
 import com.momentum.config.LevelProperties;
 import com.momentum.entity.*;
+import com.momentum.repository.RecoveryTokenUsageRepository;
 import com.momentum.repository.TaskInstanceRepository;
 import com.momentum.repository.TaskTemplateRepository;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,16 @@ public class ProgressService {
     private final LevelProperties levelProperties;
     private final TaskInstanceRepository taskInstanceRepository;
     private final TaskTemplateRepository taskTemplateRepository;
+    private final RecoveryTokenUsageRepository recoveryTokenUsageRepository;
 
     public ProgressService(LevelProperties levelProperties,
                            TaskInstanceRepository taskInstanceRepository,
-                           TaskTemplateRepository taskTemplateRepository) {
+                           TaskTemplateRepository taskTemplateRepository,
+                           RecoveryTokenUsageRepository recoveryTokenUsageRepository) {
         this.levelProperties = levelProperties;
         this.taskInstanceRepository = taskInstanceRepository;
         this.taskTemplateRepository = taskTemplateRepository;
+        this.recoveryTokenUsageRepository = recoveryTokenUsageRepository;
     }
 
     public ProgressView progress(AppUser user) {
@@ -53,7 +57,9 @@ public class ProgressService {
                 break;
             }
             boolean allDone = day.stream().allMatch(t -> t.getStatus() == TaskStatus.COMPLETED || t.getStatus() == TaskStatus.CANCELLED);
-            if (!allDone) break;
+            if (!allDone && !recoveryTokenUsageRepository.existsByUserAndScopeAndRecoveryDate(user, RecoveryScope.OVERALL, cursor)) {
+                break;
+            }
             overall++;
             cursor = cursor.minusDays(1);
         }
@@ -63,6 +69,9 @@ public class ProgressService {
             int streak = 0;
             for (TaskInstance instance : taskInstanceRepository.findByUserAndTemplateOrderByTaskDateDesc(user, template)) {
                 if (instance.getStatus() == TaskStatus.COMPLETED && (streak == 0 || instance.getTaskDate().equals(today.minusDays(streak)))) {
+                    streak++;
+                } else if (instance.getTaskDate().equals(today.minusDays(streak))
+                    && recoveryTokenUsageRepository.existsByUserAndTemplateAndRecoveryDate(user, template, instance.getTaskDate())) {
                     streak++;
                 } else if (streak > 0) {
                     break;
