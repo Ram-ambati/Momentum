@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres}
+    username: ${DATABASE_USERNAME:postgres.hhfdkiihxjiojkktizhd}
+    password: ${DATABASE_PASSWORD:Juyh9!Gj?iRGVBD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+momentum:
+  level-thresholds: [0, 100, 250, 450, 700, 1000, 1400, 1900]

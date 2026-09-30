@@ -1,0 +1,21 @@
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.log
+.DS_Store
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env*
+frontend/.next/
+frontend/build/
+
+# Backend
+backend/target/
+backend/out/
+backend/.env*
+backend/*.iml

@@ -1,42 +1,40 @@
 # Momentum
 
-Momentum is a Spring Boot backend for a gamified productivity app with immutable task history, XP/coin ledgers, rewards, levels, streaks, and timezone-aware daily views.
+Momentum is a gamified daily task and progress application designed to answer the fundamental question: *Don't just tell me what I have to do. Show me what I've actually accomplished.* 
 
-## Run
+This project combines task management with gamification (XP, coins, streaks, levels, and customizable rewards) to build a persistent record of productivity over time.
 
-```bash
-./mvnw spring-boot:run
-```
+## Project Structure
 
-or
+This is a monorepo containing both the backend API and the frontend client, along with project documentation.
 
-```bash
-mvn spring-boot:run
-```
+- `/backend` - The Spring Boot (Java 21) backend providing a RESTful API and PostgreSQL persistence.
+- `/frontend` - (Coming Soon) The React + TypeScript frontend web client.
+- `/docs` - Project documentation, architecture decisions, and feature specifications.
 
-Configure PostgreSQL via env vars:
+## Quick Start
 
-- `DATABASE_URL`
-- `DATABASE_USERNAME`
-- `DATABASE_PASSWORD`
+### Backend
 
-## API (MVP)
+To run the backend locally:
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
-- `POST /api/tasks`
-- `GET /api/tasks/today`
-- `POST /api/tasks/{id}/complete`
-- `PATCH /api/tasks/{id}/status`
-- `GET /api/tasks/history/{date}`
-- `GET /api/history?from=YYYY-MM-DD&to=YYYY-MM-DD`
-- `GET /api/progress`
-- `GET /api/streaks`
-- `GET /api/transactions/xp`
-- `GET /api/transactions/coins`
-- `GET /api/rewards`
-- `POST /api/rewards`
-- `POST /api/rewards/{id}/redeem`
-- `GET /api/rewards/redemptions`
+1. Navigate to the `backend` directory:
+   ```bash
+   cd backend
+   ```
+2. Start the Spring Boot application (using the H2 in-memory test database by default):
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+
+### Frontend
+
+*Frontend development is scheduled for the next phase.*
+
+## Architecture Summary
+
+- **Backend**: Modular monolith built with Spring Boot, Spring Data JPA, and Spring Security.
+- **Frontend**: Designed for React and TypeScript.
+- **Database**: PostgreSQL (Production) / H2 (Local testing).
+
+For more details, please see the [Features Documentation](docs/features.md) and [Plan](Plan.md).
