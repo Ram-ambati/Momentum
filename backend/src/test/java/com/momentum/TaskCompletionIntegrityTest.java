@@ -46,8 +46,8 @@ class TaskCompletionIntegrityTest {
         taskService.completeTask(user, instance.getId());
         taskService.completeTask(user, instance.getId());
 
-        assertThat(xpRepository.findByUserOrderByIdDesc(user)).hasSize(1);
-        assertThat(coinRepository.findByUserOrderByIdDesc(user)).hasSize(1);
+        assertThat(xpRepository.findByUserOrderByIdDesc(user, org.springframework.data.domain.Pageable.unpaged()).getContent()).hasSize(1);
+        assertThat(coinRepository.findByUserOrderByIdDesc(user, org.springframework.data.domain.Pageable.unpaged()).getContent()).hasSize(1);
         assertThat(userRepository.findById(user.getId()).orElseThrow().getXpTotal()).isEqualTo(30);
         assertThat(userRepository.findById(user.getId()).orElseThrow().getCoinBalance()).isEqualTo(10);
     }

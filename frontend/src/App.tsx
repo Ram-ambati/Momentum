@@ -8,6 +8,7 @@ import TasksPage from './pages/TasksPage';
 import HistoryPage from './pages/HistoryPage';
 import ProgressPage from './pages/ProgressPage';
 import RewardsPage from './pages/RewardsPage';
+import Starfield from './components/Starfield';
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
@@ -29,9 +30,9 @@ function AppContent() {
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="dashboard" element={<HistoryPage />} />
         <Route path="tasks" element={<TasksPage />} />
-        <Route path="history" element={<HistoryPage />} />
+        <Route path="history" element={<Dashboard />} />
         <Route path="rewards" element={<RewardsPage />} />
         <Route path="progress" element={<ProgressPage />} />
       </Route>
@@ -43,6 +44,7 @@ function AppContent() {
 export default function App() {
   return (
     <BrowserRouter>
+      <Starfield />
       <AuthProvider>
         <AppContent />
       </AuthProvider>

@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:5432/postgres}
-    username: ${DATABASE_USERNAME:postgres.hhfdkiihxjiojkktizhd}
-    password: ${DATABASE_PASSWORD:Juyh9!Gj?iRGVBD}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update

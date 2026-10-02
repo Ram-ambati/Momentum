@@ -1,44 +1,28 @@
 # Remaining Implementation Plan
 
-We have successfully locked in the core loop: **Auth → Dashboard → Task Creation → Task Completion → XP/Coin Progression** running entirely on ultra-premium Apple Glassmorphism with Framer Motion spring physics. 
+The core application loop (**Auth → Dashboard → Task Creation → Task Completion → XP/Coin Progression**) is now fully implemented across both the backend and frontend.
 
-Here is exactly what is left to build to finish the application, as per the product requirements:
+The React + TypeScript frontend client is scaffolded, routing is established, and the primary pages (`Dashboard`, `TasksPage`, `HistoryPage`, `ProgressPage`, `RewardsPage`) are built and communicating with the backend via the API client.
 
-## 1. Global Navigation & Routing
-* **Task:** Convert the text links in the Dashboard header (`DASHBOARD`, `TASKS`, `HISTORY`, `REWARDS`) into a persistent `<Layout />` shell using React Router.
-* **Goal:** Allow seamless switching between the core app pages without losing state or animations.
+Here is exactly what is left to build to finish the application, focusing on the core functional improvements for a personal use case:
 
-## 2. Tasks Management Page (`/tasks`)
-* **Task:** Build a page to manage **Task Templates**.
+## 1. API Pagination (Backend)
+* **Task:** Add pagination to endpoints returning lists to prevent performance degradation over time as you add more tasks.
 * **Features:**
-  * Fetch and display active recurring task templates (`GET /api/tasks/templates`).
-  * Edit existing templates (`PATCH /api/tasks/templates/{id}`).
-  * Deactivate/Delete templates (`DELETE /api/tasks/templates/{id}`).
-* **Rule:** Editing a template here must strictly alter *future* behavior without rewriting the immutable historical snapshots.
+  * Update `GET /api/history`, `GET /api/transactions/xp`, and `GET /api/transactions/coins` to use Spring Data's `Pageable`.
+  * Update the frontend API clients and components to handle paginated responses appropriately.
 
-## 3. History & Calendar Page (`/history`)
-* **Task:** Build a visual timeline of past productivity.
+## 2. Advanced Analytics & Heatmap (Backend)
+* **Task:** Provide aggregate statistics for the frontend `ProgressPage` and `HistoryPage`.
 * **Features:**
-  * **Calendar Heatmap:** A visual grid showing activity density using `GET /api/history/calendar`.
-  * **Daily Breakdown:** Clicking a past date reveals the historical task snapshots for that day (showing exact XP/priority they had *at that time*).
+  * **Weekly & Monthly Stats:** Create `GET /api/stats/weekly` and `GET /api/stats/monthly` endpoints to return aggregated data (total tasks, completion %, longest streaks).
+  * **Calendar Heatmap Data:** Build `GET /api/history/calendar` (or optimize the existing date range endpoint) to efficiently serve activity density data for calendar views.
 
-## 4. Progress & Statistics Page (`/progress`)
-* **Task:** Build deep-dive analytics.
+## 3. Testing & Polish
+* **Task:** Ensure system reliability and user experience.
 * **Features:**
-  * Tabs for `DAILY`, `WEEKLY`, and `MONTHLY` statistics.
-  * **Ledger View:** A scrollable table showing exact transactions of every XP point and Coin earned.
-
-## 5. Rewards Shop (`/rewards`)
-* **Task:** Build the coin redemption store.
-* **Features:**
-  * Display current Coin Balance prominently.
-  * **Reward Cards:** List custom rewards (e.g., "Movie Night - 250 Coins").
-  * **Redemption Flow:** A physical "Redeem" button that verifies balance and triggers the backend API.
-  * **Create Reward Modal:** Form to let you add new things you want to buy with your coins.
-
-## 6. Recovery Tokens (Stretch)
-* **Task:** If the backend streak recovery system is fully implemented, build the UI to view token balance and use a token to recover a red "missed" day.
+  * Frontend Polish: Ensure empty states, loading spinners, and animations are functioning smoothly across all built pages.
 
 ---
 ### Next Immediate Step Recommendation
-I recommend building the **Global Layout & Navigation** first so we have a place to put the rest of the pages, followed immediately by the **Tasks Management Page**.
+I recommend starting with **API Pagination** so the app can comfortably handle your data as it grows, followed by the **Advanced Analytics & Heatmap**.

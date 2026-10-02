@@ -32,6 +32,10 @@ export const taskApi = {
   
   getHistory: (date: string): Promise<TaskInstance[]> => fetchApi(`/tasks/history/${date}`),
   
+  getMonthlyStats: (year: number, month: number): Promise<any> => fetchApi(`/history/monthly?year=${year}&month=${month}`),
+  
+  getMonthlyHistory: (from: string, to: string): Promise<any[]> => fetchApi(`/history?from=${from}&to=${to}`),
+  
   createTask: (data: any): Promise<TaskTemplate> => fetchApi('/tasks', {
     method: 'POST',
     body: JSON.stringify(data)

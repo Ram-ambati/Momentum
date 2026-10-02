@@ -4,8 +4,9 @@ import com.momentum.entity.AppUser;
 import com.momentum.entity.CoinTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CoinTransactionRepository extends JpaRepository<CoinTransaction, Long> {
-    List<CoinTransaction> findByUserOrderByIdDesc(AppUser user);
+    Page<CoinTransaction> findByUserOrderByIdDesc(AppUser user, Pageable pageable);
 }

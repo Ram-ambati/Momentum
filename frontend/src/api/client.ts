@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8080/api`;
 
 export const getAuthToken = () => localStorage.getItem('token');
 export const setAuthToken = (token: string) => localStorage.setItem('token', token);
@@ -34,5 +34,7 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   }
 
   if (response.status === 204) return null;
-  return response.json();
+  
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 }

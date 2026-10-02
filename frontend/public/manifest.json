@@ -1,0 +1,17 @@
+{
+  "name": "Momentum",
+  "short_name": "Momentum",
+  "description": "A dark-themed, glass-morphism gamified habit tracker.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -161,6 +161,11 @@ public class TaskService {
 
     @Transactional
     public void generateInstancesForDate(AppUser user, LocalDate date) {
+        LocalDate today = LocalDate.now(ZoneId.of(user.getTimezone()));
+        if (date.isAfter(today)) {
+            return; // Never generate tasks in the future
+        }
+        
         List<TaskTemplate> templates = taskTemplateRepository.findByUserAndActiveTrue(user);
         for (TaskTemplate template : templates) {
             if (!appliesToDate(template, date)) {
@@ -181,6 +186,14 @@ public class TaskService {
     }
 
     private boolean appliesToDate(TaskTemplate template, LocalDate date) {
+        LocalDate createdDate = template.getCreatedAt() != null 
+            ? LocalDate.ofInstant(template.getCreatedAt(), ZoneId.of(template.getUser().getTimezone()))
+            : LocalDate.now(ZoneId.of(template.getUser().getTimezone()));
+            
+        if (date.isBefore(createdDate)) {
+            return false;
+        }
+
         if (template.getTaskType() == TaskType.ONE_TIME) {
             return date.equals(template.getScheduledDate());
         }
@@ -188,8 +201,7 @@ public class TaskService {
             return true;
         }
         if (template.getRecurrenceRule() == RecurrenceRule.WEEKLY) {
-            LocalDate anchor = template.getScheduledDate() != null ? template.getScheduledDate() :
-                LocalDate.ofInstant(template.getCreatedAt(), ZoneId.of(template.getUser().getTimezone()));
+            LocalDate anchor = template.getScheduledDate() != null ? template.getScheduledDate() : createdDate;
             return anchor.getDayOfWeek() == date.getDayOfWeek();
         }
         return false;

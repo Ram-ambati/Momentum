@@ -55,7 +55,7 @@ export default function Login() {
           
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Username</label>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'rgba(255, 255, 255, 0.85)', fontSize: '0.9rem', fontWeight: 500 }}>Username</label>
               <input 
                 type="text" 
                 value={username}
@@ -69,7 +69,7 @@ export default function Login() {
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Password</label>
+              <label style={{ display: 'block', marginBottom: '8px', color: 'rgba(255, 255, 255, 0.85)', fontSize: '0.9rem', fontWeight: 500 }}>Password</label>
               <input 
                 type="password" 
                 value={password}

@@ -38,7 +38,11 @@ public class DataSeeder implements CommandLineRunner {
         // Use the first registered user for development/demo data.
         AppUser user = userRepository.findAll().getFirst();
 
-        // Removed the check preventing seeding so it can insert the missing dashboard data.
+        // Prevent duplicate seeding! If templates already exist, don't seed again.
+        if (templateRepository.count() > 0) {
+            System.out.println("DATA ALREADY SEEDED. SKIPPING...");
+            return;
+        }
 
         System.out.println("SEEDING MOMENTUM DATA FOR USER: " + user.getUsername());
 

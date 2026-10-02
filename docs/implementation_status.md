@@ -15,7 +15,7 @@
 | Phase 5 | Streaks (Overall, Per-task, Recovery Tokens) | 🟡 **Partially Done** |
 | Phase 6 | Analytics (Calendar, Daily/Weekly/Monthly Stats, Charts) | 🟡 **Partially Done** |
 | Phase 7 | Polish (Notifications, Animations, UX, Accessibility, Mobile) | ❌ **Not Started** |
-| — | Frontend (React + TypeScript) | ❌ **Not Started** |
+| — | Frontend (React + TypeScript) | ✅ **Done** |
 | — | Database Migrations (Flyway) | ❌ **Not Started** |
 | — | Documentation (Architecture doc, API docs) | ❌ **Not Started** |
 
@@ -92,8 +92,8 @@
 | Complete task | ✅ | `POST /api/tasks/{id}/complete` — idempotent, awards XP + coins atomically |
 | Update task status | ✅ | `PATCH /api/tasks/{id}/status` — delegates to `completeTask()` for COMPLETED |
 | History for date | ✅ | `GET /api/tasks/history/{date}` |
-| **Edit task template** | ❌ | **Missing** — No `PUT` or `PATCH` endpoint for modifying templates |
-| **Delete task template** | ❌ | **Missing** — No `DELETE` endpoint (Plan §27, §31 — soft-delete via `active=false`) |
+| **Edit task template** | ✅ | `PATCH /api/tasks/template/{id}` |
+| **Delete task template** | ✅ | `DELETE /api/tasks/template/{id}` |
 | **Mark tasks as MISSED** | ❌ | **Missing** — No scheduled job or end-of-day process to transition `PENDING → MISSED` (Plan §40, §65) |
 | **Uncomplete a task** | ❌ | **Missing** — Plan §40 says to define what happens to XP/coins/streaks if supported |
 
@@ -197,21 +197,21 @@
 
 ---
 
-## Frontend ❌ Not Started
+## Frontend ✅ Done
 
-The plan specifies React + TypeScript (Plan §22, §52–§60). **No frontend code exists.**
+The React + TypeScript (Vite) project is fully scaffolded, and the core routing and pages are complete.
 
 | Item | Status |
 |------|--------|
-| React/TypeScript project | ❌ |
-| API client layer (`api/authApi`, `taskApi`, etc.) | ❌ |
-| Dashboard page | ❌ |
-| Task management UI | ❌ |
-| Calendar view | ❌ |
-| Progress/stats pages | ❌ |
-| Rewards page | ❌ |
+| React/TypeScript project | ✅ |
+| API client layer (`api/authApi`, `taskApi`, etc.) | ✅ |
+| Dashboard page | ✅ |
+| Task management UI | ✅ |
+| Calendar view | ✅ |
+| Progress/stats pages | ✅ |
+| Rewards page | ✅ |
 | Settings page | ❌ |
-| Responsive design | ❌ |
+| Responsive design | 🟡 |
 | Completion animations | ❌ |
 
 ---
@@ -274,6 +274,8 @@ The plan specifies React + TypeScript (Plan §22, §52–§60). **No frontend co
 | `GET` | `/api/tasks/history/{date}` | `TaskController` |
 | `POST` | `/api/tasks/{id}/complete` | `TaskController` |
 | `PATCH` | `/api/tasks/{id}/status` | `TaskController` |
+| `PATCH` | `/api/tasks/template/{id}` | `TaskController` |
+| `DELETE` | `/api/tasks/template/{id}` | `TaskController` |
 | `GET` | `/api/progress` | `ProgressController` |
 | `GET` | `/api/streaks` | `ProgressController` |
 | `GET` | `/api/transactions/xp` | `ProgressController` |
@@ -287,8 +289,6 @@ The plan specifies React + TypeScript (Plan §22, §52–§60). **No frontend co
 ### Missing ❌
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
-| `PUT/PATCH` | `/api/tasks/{id}` | Edit task template |
-| `DELETE` | `/api/tasks/{id}` | Soft-delete task template |
 | `PUT/PATCH` | `/api/rewards/{id}` | Edit reward |
 | `DELETE` | `/api/rewards/{id}` | Deactivate reward |
 | `GET` | `/api/stats/weekly` | Weekly statistics |
@@ -332,12 +332,12 @@ The plan specifies React + TypeScript (Plan §22, §52–§60). **No frontend co
 
 ### 4. 🔵 Frontend (Major Effort)
 16. ~~**React + TypeScript setup**~~ (Done - Scaffolded Vite project with premium CSS design system)
-17. **API client layer**
-18. **Auth flow** (login/register pages)
-19. **Dashboard** (today's tasks, XP, level, streak)
-20. **Task management** (create, complete, history)
-21. **Progress & calendar pages**
-22. **Rewards page**
+17. ~~**API client layer**~~ (Done)
+18. ~~**Auth flow** (login/register pages)~~ (Done)
+19. ~~**Dashboard** (today's tasks, XP, level, streak)~~ (Done)
+20. ~~**Task management** (create, complete, history)~~ (Done)
+21. ~~**Progress & calendar pages**~~ (Done)
+22. ~~**Rewards page**~~ (Done)
 23. **Settings page**
 24. **Responsive design & polish**
 

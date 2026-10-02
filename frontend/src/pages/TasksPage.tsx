@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { taskApi, type TaskTemplate } from '../api/taskApi';
 import { LazyMotion, domAnimation, m } from 'framer-motion';
+import TaskCreateModal from '../components/TaskCreateModal';
 
 export default function TasksPage() {
   const [templates, setTemplates] = useState<TaskTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showTaskModal, setShowTaskModal] = useState(false);
 
   const loadTemplates = async () => {
     try {
@@ -40,17 +42,26 @@ export default function TasksPage() {
     <LazyMotion features={domAnimation}>
       <m.div 
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring' }}
-        className="apple-glass" 
-        style={{ padding: '40px' }}
+        className="apple-glass responsive-card" 
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-          <h2 className="vibrant-text" style={{ fontSize: '2rem', fontWeight: 600 }}>Task Templates</h2>
-          <span style={{ color: 'var(--text-secondary)' }}>{templates.length} Active</span>
+          <div>
+            <h2 className="vibrant-text" style={{ fontSize: '2rem', fontWeight: 600 }}>Task Templates</h2>
+            <span style={{ color: 'var(--text-secondary)' }}>{templates.length} Active</span>
+          </div>
+          <m.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="btn-glass"
+            onClick={() => setShowTaskModal(true)}
+          >
+            + Add Task
+          </m.button>
         </div>
 
         {error && <div style={{ color: '#FCA5A5', marginBottom: '20px' }}>{error}</div>}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
           {templates.length === 0 ? (
             <p style={{ color: 'var(--text-secondary)' }}>You don't have any active tasks.</p>
           ) : (
@@ -94,6 +105,16 @@ export default function TasksPage() {
           )}
         </div>
       </m.div>
+
+      {showTaskModal && (
+        <TaskCreateModal 
+          onClose={() => setShowTaskModal(false)}
+          onCreated={() => {
+            setShowTaskModal(false);
+            loadTemplates();
+          }}
+        />
+      )}
     </LazyMotion>
   );
 }

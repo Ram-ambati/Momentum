@@ -53,7 +53,7 @@ class RewardRedemptionIntegrityTest {
         Reward reward = rewardService.createReward(user, new RewardService.CreateRewardRequest("Movie", "", 100));
         rewardService.redeem(user, reward.getId());
 
-        CoinTransaction txn = coinRepository.findByUserOrderByIdDesc(user).getFirst();
+        CoinTransaction txn = coinRepository.findByUserOrderByIdDesc(user, org.springframework.data.domain.Pageable.unpaged()).getContent().getFirst();
         assertThat(txn.getTransactionType()).isEqualTo(CoinTransactionType.SPEND);
         assertThat(txn.getAmount()).isEqualTo(-100);
         assertThat(userRepository.findById(user.getId()).orElseThrow().getCoinBalance()).isEqualTo(200);

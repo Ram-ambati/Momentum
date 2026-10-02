@@ -4,9 +4,19 @@ import { LazyMotion, domAnimation, m } from 'framer-motion';
 
 export default function ProgressPage() {
   const [progress, setProgress] = useState<ProgressData | null>(null);
+  
+  // XP Ledger State
   const [xpLedger, setXpLedger] = useState<any[]>([]);
+  const [xpPage, setXpPage] = useState(0);
+  const [xpLast, setXpLast] = useState(true);
+  
+  // Coin Ledger State
   const [coinLedger, setCoinLedger] = useState<any[]>([]);
+  const [coinPage, setCoinPage] = useState(0);
+  const [coinLast, setCoinLast] = useState(true);
+  
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'XP' | 'COINS'>('XP');
 
@@ -15,12 +25,17 @@ export default function ProgressPage() {
       try {
         const [prog, xp, coins] = await Promise.all([
           progressApi.getProgress(),
-          progressApi.getXpLedger(),
-          progressApi.getCoinLedger()
+          progressApi.getXpLedger(0, 20),
+          progressApi.getCoinLedger(0, 20)
         ]);
         setProgress(prog);
-        setXpLedger(xp);
-        setCoinLedger(coins);
+        setXpLedger(xp.content);
+        setXpLast(xp.last);
+        setXpPage(xp.number);
+        
+        setCoinLedger(coins.content);
+        setCoinLast(coins.last);
+        setCoinPage(coins.number);
       } catch (err: any) {
         setError(err.message || 'Failed to load progress data');
       } finally {
@@ -30,19 +45,42 @@ export default function ProgressPage() {
     loadData();
   }, []);
 
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      if (activeTab === 'XP' && !xpLast) {
+        const res = await progressApi.getXpLedger(xpPage + 1, 20);
+        setXpLedger(prev => [...prev, ...res.content]);
+        setXpLast(res.last);
+        setXpPage(res.number);
+      } else if (activeTab === 'COINS' && !coinLast) {
+        const res = await progressApi.getCoinLedger(coinPage + 1, 20);
+        setCoinLedger(prev => [...prev, ...res.content]);
+        setCoinLast(res.last);
+        setCoinPage(res.number);
+      }
+    } catch (err) {
+        console.error(err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   if (loading) return <div style={{ padding: '40px', color: 'var(--text-secondary)' }}>Loading analytics...</div>;
+  if (error) return <div style={{ padding: '40px', color: '#FCA5A5' }}>{error}</div>;
 
   const currentLedger = activeTab === 'XP' ? xpLedger : coinLedger;
+  const isLast = activeTab === 'XP' ? xpLast : coinLast;
 
   return (
     <LazyMotion features={domAnimation}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px' }}>
+      <div className="responsive-grid">
         
         {/* STATS OVERVIEW */}
         <m.div 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring' }}
-          className="apple-glass" 
-          style={{ gridColumn: 'span 12', padding: '32px', display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center' }}
+          className="apple-glass responsive-card col-span-12" 
+          style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center', gap: '20px' }}
         >
           <div>
             <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600, letterSpacing: '0.1em' }}>CURRENT LEVEL</div>
@@ -63,8 +101,7 @@ export default function ProgressPage() {
         {/* LEDGER SECTION */}
         <m.div 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', delay: 0.1 }}
-          className="apple-glass" 
-          style={{ gridColumn: 'span 12', padding: '32px' }}
+          className="apple-glass responsive-card col-span-12" 
         >
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '16px' }}>
             <button 
@@ -81,14 +118,14 @@ export default function ProgressPage() {
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="custom-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '50vh', overflowY: 'auto', paddingRight: '8px' }}>
             {currentLedger.length === 0 ? (
               <p style={{ color: 'var(--text-secondary)' }}>No transactions found.</p>
             ) : (
               currentLedger.map((txn, i) => (
                 <m.div 
                   key={txn.id}
-                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02 }}
+                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: (i % 20) * 0.02 }}
                   style={{ 
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
                     padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px',
@@ -109,6 +146,18 @@ export default function ProgressPage() {
                   </div>
                 </m.div>
               ))
+            )}
+            
+            {/* LOAD MORE BUTTON */}
+            {!isLast && currentLedger.length > 0 && (
+              <button 
+                onClick={loadMore} 
+                disabled={loadingMore}
+                className="btn-secondary"
+                style={{ marginTop: '16px', alignSelf: 'center', padding: '12px 32px' }}
+              >
+                {loadingMore ? 'Loading...' : 'Load More'}
+              </button>
             )}
           </div>
         </m.div>

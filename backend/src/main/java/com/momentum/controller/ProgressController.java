@@ -6,8 +6,11 @@ import com.momentum.repository.CoinTransactionRepository;
 import com.momentum.repository.XpTransactionRepository;
 import com.momentum.service.ProgressService;
 import com.momentum.service.UserContextService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
@@ -42,13 +45,13 @@ public class ProgressController {
     }
 
     @GetMapping("/transactions/xp")
-    public List<XpTxnRow> xpLedger() {
-        return xpTransactionRepository.findByUserOrderByIdDesc(userContextService.requireUser()).stream().map(XpTxnRow::from).toList();
+    public Page<XpTxnRow> xpLedger(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        return xpTransactionRepository.findByUserOrderByIdDesc(userContextService.requireUser(), PageRequest.of(page, size)).map(XpTxnRow::from);
     }
 
     @GetMapping("/transactions/coins")
-    public List<CoinTxnRow> coinLedger() {
-        return coinTransactionRepository.findByUserOrderByIdDesc(userContextService.requireUser()).stream().map(CoinTxnRow::from).toList();
+    public Page<CoinTxnRow> coinLedger(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        return coinTransactionRepository.findByUserOrderByIdDesc(userContextService.requireUser(), PageRequest.of(page, size)).map(CoinTxnRow::from);
     }
 
     public record XpTxnRow(Long id, int amount, String reason, Instant createdAt) {
