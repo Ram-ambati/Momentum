@@ -8,6 +8,7 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { user, login, register } = useAuth();
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
     try {
       if (isLogin) {
         await login(username, password);
@@ -30,6 +32,8 @@ export default function Login() {
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Authentication failed');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -84,16 +88,17 @@ export default function Login() {
             </div>
             <m.button 
               type="submit" 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={isSubmitting}
+              whileHover={isSubmitting ? {} : { scale: 1.02 }}
+              whileTap={isSubmitting ? {} : { scale: 0.98 }}
               style={{ 
                 marginTop: '16px', padding: '16px', borderRadius: '100px',
                 background: 'rgba(255,255,255,0.9)', color: 'black',
-                fontWeight: 600, border: 'none', cursor: 'pointer',
-                fontSize: '1rem'
+                fontWeight: 600, border: 'none', cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                fontSize: '1rem', opacity: isSubmitting ? 0.7 : 1
               }}
             >
-              {isLogin ? 'Sign In' : 'Sign Up'}
+              {isSubmitting ? 'Authenticating...' : (isLogin ? 'Sign In' : 'Sign Up')}
             </m.button>
           </form>
           

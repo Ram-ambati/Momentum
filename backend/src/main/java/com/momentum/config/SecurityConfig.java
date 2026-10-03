@@ -43,9 +43,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://momentum-seven-mu.vercel.app", "http://localhost:5173"));
-        // Note: For local mobile testing (e.g. 192.168.x.x), you may temporarily change this back to "*" 
-        // or explicitly add your phone's local network IP address here.
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         

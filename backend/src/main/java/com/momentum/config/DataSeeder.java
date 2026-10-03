@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-@Configuration
+// @Configuration
 public class DataSeeder implements CommandLineRunner {
 
     private final AppUserRepository userRepository;
